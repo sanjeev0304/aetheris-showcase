@@ -137,7 +137,7 @@ section { padding: 88px 0; }
   border-radius: var(--r); overflow: hidden; box-shadow: var(--shadow);
   aspect-ratio: 4 / 3; background: var(--bg-2); border: 1px solid var(--line);
 }
-.hero-visual img { width: 100%; height: 100%; object-fit: cover; object-position: 18% 50%; transform: scale(1.06); transition: transform 1.6s var(--ease); }
+.hero-visual img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; transform: scale(1.06); transition: transform 1.6s var(--ease); }
 .hero-visual.in img { transform: scale(1); }
 .hero-caption { margin-top: 14px; color: var(--ink-3); font-size: 14px; }
 
@@ -205,7 +205,7 @@ section { padding: 88px 0; }
 .cell .ic { font-size: 26px; color: var(--accent); margin-bottom: auto; padding-bottom: 28px; }
 .b-record { padding: 0; }
 .b-record .img { flex: 1; min-height: 260px; background: var(--bg-2); overflow: hidden; }
-.b-record .img img { width: 100%; height: 100%; object-fit: cover; object-position: 40% 40%; }
+.b-record .img img { width: 100%; height: 100%; object-fit: cover; object-position: 55% 30%; }
 .b-record .txt { padding: 28px; display: grid; gap: 10px; }
 .b-record h3 { font-size: 1.6rem; }
 .b-appt { background: var(--accent); border-color: transparent; }
@@ -395,6 +395,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
   .track:not(.go) .rail::before { transform: none !important; }
 }
 </style>
+<link rel="preconnect" href="https://images.unsplash.com" crossorigin>
 </head>
 <body>
 
@@ -432,8 +433,11 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
       </div>
       <div class="hero-visual rise" style="--i:3" id="heroVisual">
         <div class="frame">
-          <img src="assets/command-center.jpg"
-               alt="Hospital operations team reviewing live patient flow on a wall of screens" width="1240" height="610" fetchpriority="high" onerror="this.style.visibility='hidden'">
+          <!-- Photo: Vitaly Gariev on Unsplash (unsplash.com/photos/2kopEHjST-g), free under the Unsplash License -->
+          <img src="https://images.unsplash.com/photo-1758691463203-cce9d415b2b5?auto=format&amp;fit=crop&amp;q=80&amp;w=1600"
+               srcset="https://images.unsplash.com/photo-1758691463203-cce9d415b2b5?auto=format&amp;fit=crop&amp;q=80&amp;w=800 800w, https://images.unsplash.com/photo-1758691463203-cce9d415b2b5?auto=format&amp;fit=crop&amp;q=80&amp;w=1200 1200w, https://images.unsplash.com/photo-1758691463203-cce9d415b2b5?auto=format&amp;fit=crop&amp;q=80&amp;w=1600 1600w, https://images.unsplash.com/photo-1758691463203-cce9d415b2b5?auto=format&amp;fit=crop&amp;q=80&amp;w=2400 2400w"
+               sizes="(max-width: 900px) 100vw, 50vw"
+               alt="Two doctors reviewing a patient's record together on a tablet" width="3840" height="2160" fetchpriority="high" onerror="this.style.visibility='hidden'">
         </div>
       </div>
     </div>
@@ -464,8 +468,11 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
       <div class="bento">
         <article class="cell b-record reveal">
           <div class="img">
-            <img src="assets/leadership.jpg"
-                 alt="Hospital administrators reviewing patient workflow together" loading="lazy" width="1360" height="495" onerror="this.style.visibility='hidden'">
+            <!-- Photo: Accuray on Unsplash (unsplash.com/photos/S34fEzWT6eE), free under the Unsplash License -->
+            <img src="https://images.unsplash.com/photo-1666214280429-d3985e2ef0b4?auto=format&amp;fit=crop&amp;q=80&amp;w=1600"
+                 srcset="https://images.unsplash.com/photo-1666214280429-d3985e2ef0b4?auto=format&amp;fit=crop&amp;q=80&amp;w=800 800w, https://images.unsplash.com/photo-1666214280429-d3985e2ef0b4?auto=format&amp;fit=crop&amp;q=80&amp;w=1200 1200w, https://images.unsplash.com/photo-1666214280429-d3985e2ef0b4?auto=format&amp;fit=crop&amp;q=80&amp;w=1600 1600w, https://images.unsplash.com/photo-1666214280429-d3985e2ef0b4?auto=format&amp;fit=crop&amp;q=80&amp;w=2400 2400w"
+                 sizes="(max-width: 900px) 100vw, 66vw"
+                 alt="Clinicians reviewing a patient's scans together on a desktop screen" loading="lazy" width="9504" height="6336" onerror="this.style.visibility='hidden'">
           </div>
           <div class="txt">
             <h3>One patient record, everywhere it's needed.</h3>

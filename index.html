@@ -1,0 +1,899 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aetheris Health AI</title>
+<meta name="description" content="Aetheris is one intelligent system for the whole hospital: patients, appointments, billing and reports, with AI built into every workflow.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<style>
+/* ---------- Tokens ----------
+   Radius rule: containers 16px, interactive controls full pill. Nothing else. */
+:root {
+  --bg: #f2f4f3;
+  --bg-2: #e7ebe9;
+  --surface: #fbfcfb;
+  --ink: #0d1412;
+  --ink-2: #36423e;
+  --ink-3: #5a6662;
+  --line: rgba(13, 20, 18, .11);
+  --accent: #0a7672;
+  --accent-ink: #f3fbfa;
+  --accent-soft: rgba(10, 118, 114, .08);
+  --accent-line: rgba(10, 118, 114, .35);
+  --deny: #a3372b;
+  --deny-soft: rgba(163, 55, 43, .08);
+  --shadow: 0 40px 80px -40px rgba(8, 56, 52, .28);
+  --r: 16px;
+  --max: 1240px;
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0a0e0d; --bg-2: #0f1513; --surface: #121917;
+    --ink: #e6ece9; --ink-2: #b6c2bd; --ink-3: #8b9893;
+    --line: rgba(230, 236, 233, .1);
+    --accent: #3ccfc6; --accent-ink: #04201e;
+    --accent-soft: rgba(60, 207, 198, .09); --accent-line: rgba(60, 207, 198, .38);
+    --deny: #ef8d7f; --deny-soft: rgba(239, 141, 127, .1);
+    --shadow: 0 40px 80px -40px rgba(0, 0, 0, .7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0a0e0d; --bg-2: #0f1513; --surface: #121917;
+  --ink: #e6ece9; --ink-2: #b6c2bd; --ink-3: #8b9893;
+  --line: rgba(230, 236, 233, .1);
+  --accent: #3ccfc6; --accent-ink: #04201e;
+  --accent-soft: rgba(60, 207, 198, .09); --accent-line: rgba(60, 207, 198, .38);
+  --deny: #ef8d7f; --deny-soft: rgba(239, 141, 127, .1);
+  --shadow: 0 40px 80px -40px rgba(0, 0, 0, .7);
+  color-scheme: dark;
+}
+
+/* ---------- Base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: "Geist", ui-sans-serif, system-ui, sans-serif;
+  font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+  transition: background .4s var(--ease), color .4s var(--ease);
+}
+img { display: block; max-width: 100%; }
+a { color: inherit; }
+h1, h2, h3 { margin: 0; font-weight: 600; letter-spacing: -.035em; line-height: 1.05; }
+h2 { font-size: clamp(2rem, 4.2vw, 3.4rem); max-width: 18ch; }
+h3 { font-size: 1.3rem; letter-spacing: -.02em; line-height: 1.25; }
+p { margin: 0; }
+.mono { font-family: "Geist Mono", ui-monospace, monospace; font-feature-settings: "tnum"; }
+.wrap { width: 100%; max-width: var(--max); margin: 0 auto; padding: 0 16px; }
+@media (min-width: 768px) { .wrap { padding: 0 32px; } }
+section { padding: 88px 0; }
+@media (min-width: 1024px) { section { padding: 128px 0; } }
+.lede { color: var(--ink-2); font-size: 1.125rem; max-width: 58ch; margin-top: 20px; }
+.eyebrow {
+  font-family: "Geist Mono", monospace; font-size: 12px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 20px; display: block;
+}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; gap: 10px; white-space: nowrap;
+  height: 48px; padding: 0 22px; border-radius: 999px; font: 500 15px/1 "Geist", sans-serif;
+  text-decoration: none; cursor: pointer; border: 1px solid transparent;
+  transition: transform .25s var(--ease), background .25s var(--ease), border-color .25s var(--ease);
+}
+.btn:active { transform: scale(.98); }
+.btn-primary { background: var(--ink); color: var(--bg); }
+.btn-primary:hover { background: var(--accent); color: var(--accent-ink); }
+.btn-primary i { transition: transform .3s var(--ease); }
+.btn-primary:hover i { transform: translateX(3px); }
+.btn-ghost { border-color: var(--line); color: var(--ink); background: transparent; }
+.btn-ghost:hover { border-color: var(--accent-line); background: var(--accent-soft); }
+
+/* ---------- Nav ---------- */
+.nav {
+  position: sticky; top: 0; z-index: 40;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(14px) saturate(160%); -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border-bottom: 1px solid transparent; transition: border-color .3s var(--ease);
+}
+.nav.scrolled { border-bottom-color: var(--line); }
+.nav .wrap { display: flex; align-items: center; height: 68px; gap: 32px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 600; letter-spacing: -.02em; font-size: 17px; }
+.brand-mark { width: 26px; height: 26px; border-radius: 50%; background: conic-gradient(from 210deg, var(--accent), color-mix(in srgb, var(--accent) 30%, var(--bg)), var(--accent)); position: relative; flex: none; }
+.brand-mark::after { content: ""; position: absolute; inset: 7px; border-radius: 50%; background: var(--bg); }
+.nav-links { display: none; gap: 28px; margin-left: auto; }
+.nav-links a { text-decoration: none; color: var(--ink-2); font-size: 14.5px; transition: color .2s; }
+.nav-links a:hover { color: var(--ink); }
+.nav-end { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+@media (min-width: 1024px) { .nav-links { display: flex; } .nav-end { margin-left: 0; } }
+.nav .btn { height: 40px; padding: 0 18px; font-size: 14px; }
+.nav .btn-primary { display: none; }
+@media (min-width: 640px) { .nav .btn-primary { display: inline-flex; } }
+.theme-toggle {
+  width: 40px; height: 40px; border-radius: 999px; border: 1px solid var(--line); background: transparent;
+  color: var(--ink); display: grid; place-items: center; cursor: pointer; font-size: 18px;
+}
+.theme-toggle:hover { background: var(--accent-soft); }
+
+/* ---------- Hero ---------- */
+.hero { padding: 48px 0 72px; }
+@media (min-width: 1024px) { .hero { padding: 72px 0 104px; } }
+.hero-grid { display: grid; gap: 48px; align-items: center; }
+@media (min-width: 1024px) { .hero-grid { grid-template-columns: 1.05fr 1fr; gap: 64px; } }
+.hero h1 { font-size: clamp(2.6rem, 5.6vw, 4.6rem); max-width: 13ch; letter-spacing: -.045em; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero .lede { max-width: 44ch; }
+.hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px; }
+.hero-visual { position: relative; }
+.hero-visual .frame {
+  border-radius: var(--r); overflow: hidden; box-shadow: var(--shadow);
+  aspect-ratio: 4 / 3; background: var(--bg-2); border: 1px solid var(--line);
+}
+.hero-visual img { width: 100%; height: 100%; object-fit: cover; object-position: 18% 50%; transform: scale(1.06); transition: transform 1.6s var(--ease); }
+.hero-visual.in img { transform: scale(1); }
+.hero-caption { margin-top: 14px; color: var(--ink-3); font-size: 14px; }
+
+/* Load-in choreography: headline first, then support copy, then asset. */
+.rise { opacity: 0; transform: translateY(18px); transition: opacity .9s var(--ease), transform .9s var(--ease); transition-delay: calc(var(--i, 0) * 90ms); }
+.rise.in { opacity: 1; transform: none; }
+
+/* ---------- Problem ---------- */
+.problem { border-top: 1px solid var(--line); }
+.merge { margin-top: 64px; }
+.merge-row { display: grid; grid-template-columns: 1fr; gap: 0; }
+@media (min-width: 768px) { .merge-row { grid-template-columns: repeat(5, 1fr); } }
+.tile {
+  background: var(--surface); border: 1px solid var(--line); padding: 22px 20px;
+  display: flex; align-items: center; gap: 12px; font-weight: 500;
+  transition: transform 1.1s var(--ease), border-radius 1.1s var(--ease), background .6s var(--ease), color .6s var(--ease);
+  transform: translate(var(--dx, 0), var(--dy, 0)) rotate(var(--rot, 0));
+  border-radius: var(--r);
+}
+.tile i { font-size: 22px; color: var(--ink-3); transition: color .6s; }
+.merge-row .tile:nth-child(1) { --dx: -10px; --dy: 6px; --rot: -2.5deg; }
+.merge-row .tile:nth-child(2) { --dx: -4px; --dy: -8px; --rot: 1.5deg; }
+.merge-row .tile:nth-child(3) { --dx: 0px; --dy: 10px; --rot: -1deg; }
+.merge-row .tile:nth-child(4) { --dx: 5px; --dy: -6px; --rot: 2deg; }
+.merge-row .tile:nth-child(5) { --dx: 10px; --dy: 7px; --rot: -1.5deg; }
+@media (min-width: 768px) { .merge-row { gap: 20px; transition: gap 1.1s var(--ease); } }
+@media (max-width: 767px) { .merge-row { gap: 12px; transition: gap 1.1s var(--ease); } }
+.merge.joined .merge-row { gap: 0; }
+.merge.joined .tile { transform: none; border-radius: 0; background: var(--accent-soft); color: var(--ink); border-color: var(--accent-line); }
+.merge.joined .tile i { color: var(--accent); }
+@media (min-width: 768px) {
+  .merge.joined .tile:first-child { border-radius: var(--r) 0 0 var(--r); }
+  .merge.joined .tile:last-child { border-radius: 0 var(--r) var(--r) 0; }
+  .merge.joined .tile + .tile { border-left-color: transparent; }
+}
+@media (max-width: 767px) {
+  .merge.joined .tile:first-child { border-radius: var(--r) var(--r) 0 0; }
+  .merge.joined .tile:last-child { border-radius: 0 0 var(--r) var(--r); }
+  .merge.joined .tile + .tile { border-top-color: transparent; }
+}
+.merge-labels { display: grid; margin-top: 22px; }
+.merge-labels > p { grid-area: 1 / 1; }
+.merge-before { color: var(--ink-3); transition: opacity .5s var(--ease), transform .5s var(--ease); }
+.merge.joined .merge-before { opacity: 0; transform: translateY(-8px); }
+.merge-label {
+  display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; color: var(--ink-2);
+  opacity: 0; transform: translateY(8px); transition: opacity .8s var(--ease) .7s, transform .8s var(--ease) .7s;
+}
+.merge-label strong { color: var(--ink); font-weight: 600; }
+.merge.joined .merge-label { opacity: 1; transform: none; }
+
+/* ---------- Platform bento ---------- */
+.bento { display: grid; gap: 16px; margin-top: 56px; grid-template-columns: 1fr; }
+@media (min-width: 900px) {
+  .bento { grid-template-columns: repeat(6, 1fr); grid-auto-rows: minmax(240px, auto); }
+  .b-record { grid-column: span 4; grid-row: span 2; }
+  .b-appt, .b-bill { grid-column: span 2; }
+  .b-reports, .b-audit { grid-column: span 3; }
+}
+.cell {
+  border-radius: var(--r); border: 1px solid var(--line); background: var(--surface);
+  padding: 28px; display: flex; flex-direction: column; gap: 10px; position: relative; overflow: hidden;
+}
+.cell p { color: var(--ink-2); max-width: 44ch; }
+.cell .ic { font-size: 26px; color: var(--accent); margin-bottom: auto; padding-bottom: 28px; }
+.b-record { padding: 0; }
+.b-record .img { flex: 1; min-height: 260px; background: var(--bg-2); overflow: hidden; }
+.b-record .img img { width: 100%; height: 100%; object-fit: cover; object-position: 40% 40%; }
+.b-record .txt { padding: 28px; display: grid; gap: 10px; }
+.b-record h3 { font-size: 1.6rem; }
+.b-appt { background: var(--accent); border-color: transparent; }
+.b-appt h3, .b-appt p, .b-appt .ic { color: var(--accent-ink); }
+.b-appt p { opacity: .86; }
+.b-bill { background-image: radial-gradient(var(--line) 1.2px, transparent 1.2px); background-size: 14px 14px; }
+.b-reports { background: linear-gradient(160deg, var(--accent-soft), transparent 70%), var(--surface); }
+.next-up { margin-top: 28px; color: var(--ink-3); font-size: 15px; }
+.next-up strong { color: var(--ink-2); font-weight: 500; }
+
+/* ---------- Copilot demo ---------- */
+.demo {
+  margin-top: 56px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface);
+  box-shadow: var(--shadow); display: grid; overflow: hidden;
+}
+@media (min-width: 960px) { .demo { grid-template-columns: 380px 1fr; } }
+.demo-side { padding: 24px; border-bottom: 1px solid var(--line); display: grid; gap: 28px; align-content: start; }
+@media (min-width: 960px) { .demo-side { border-bottom: 0; border-right: 1px solid var(--line); } }
+.demo-label { font-size: 13px; color: var(--ink-3); margin-bottom: 10px; display: block; }
+.roles { display: flex; flex-wrap: wrap; gap: 8px; }
+.role {
+  border: 1px solid var(--line); background: transparent; color: var(--ink-2); border-radius: 999px;
+  padding: 8px 14px; font: 500 14px "Geist", sans-serif; cursor: pointer; display: inline-flex; gap: 8px; align-items: center;
+  transition: all .25s var(--ease);
+}
+.role:hover { border-color: var(--accent-line); }
+.role[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.who { margin-top: 12px; font-size: 14px; color: var(--ink-3); }
+.prompts { display: grid; gap: 8px; }
+.prompt {
+  text-align: left; border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+  border-radius: 999px; padding: 11px 16px; font: 400 14.5px "Geist", sans-serif; cursor: pointer;
+  display: flex; gap: 10px; align-items: center; transition: all .25s var(--ease);
+}
+.prompt i { color: var(--ink-3); font-size: 16px; flex: none; }
+.prompt:hover { border-color: var(--accent-line); transform: translateX(2px); }
+.prompt:active { transform: scale(.98); }
+.prompt[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.prompt[aria-pressed="true"] i { color: var(--accent); }
+.demo-main { padding: 24px; display: grid; gap: 20px; align-content: start; min-height: 460px; }
+@media (min-width: 768px) { .demo-main { padding: 32px; } }
+.demo-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 13px; color: var(--ink-3); }
+.sample { border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; }
+.ask { margin-bottom: 4px; font-size: 1.15rem; font-weight: 500; letter-spacing: -.01em; min-height: 1.6em; }
+.trace { font-size: 13px; color: var(--ink-3); display: grid; gap: 6px; }
+.trace div { opacity: 0; transform: translateY(4px); transition: all .4s var(--ease); display: flex; gap: 10px; }
+.trace div.show { opacity: 1; transform: none; }
+.trace .k { color: var(--ink-2); min-width: 92px; }
+.trace .ok { color: var(--accent); }
+.trace .no { color: var(--deny); }
+.answer { border-top: 1px solid var(--line); padding-top: 20px; color: var(--ink); min-height: 150px; }
+.answer ul { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.answer li { display: flex; gap: 12px; align-items: baseline; }
+.answer li .mono { color: var(--ink-3); font-size: 13px; min-width: 64px; }
+.answer .denied { background: var(--deny-soft); color: var(--ink); border-radius: var(--r); padding: 16px 18px; display: flex; gap: 12px; }
+.answer .denied i { color: var(--deny); font-size: 22px; flex: none; margin-top: 1px; }
+.answer .note { margin-top: 16px; font-size: 13.5px; color: var(--ink-3); display: flex; gap: 8px; align-items: center; }
+.empty { color: var(--ink-3); display: grid; gap: 8px; place-items: start; }
+.skeleton { display: grid; gap: 10px; }
+.skeleton span { height: 12px; border-radius: 999px; background: linear-gradient(90deg, var(--bg-2), var(--line), var(--bg-2)); background-size: 200% 100%; animation: shimmer 1.2s linear infinite; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+.caret { display: inline-block; width: 2px; height: 1em; background: var(--accent); vertical-align: -2px; margin-left: 2px; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ---------- Adoption ---------- */
+.adopt { margin-top: 56px; display: grid; }
+.adopt-row { display: grid; gap: 12px 48px; padding: 36px 0; border-top: 1px solid var(--line); align-items: baseline; }
+.adopt-row:last-child { border-bottom: 1px solid var(--line); }
+@media (min-width: 900px) { .adopt-row { grid-template-columns: 320px 1fr; } }
+.adopt-n { font-size: clamp(3.4rem, 7vw, 6rem); font-weight: 600; letter-spacing: -.05em; line-height: .95; color: var(--accent); font-variant-numeric: tabular-nums; }
+.adopt-n span { font-size: .32em; letter-spacing: -.01em; color: var(--ink-2); font-weight: 500; margin-left: 6px; }
+.adopt-row h3 { font-size: clamp(1.3rem, 2.2vw, 1.75rem); max-width: 26ch; }
+.adopt-row p { color: var(--ink-2); margin-top: 10px; max-width: 52ch; }
+.adopt-foot { margin-top: 20px; font-size: 14px; color: var(--ink-3); }
+
+/* ---------- Patient match ---------- */
+.match-grid { display: grid; gap: 56px; align-items: center; }
+@media (min-width: 1024px) { .match-grid { grid-template-columns: 1.15fr 1fr; gap: 80px; } }
+#match h2 { max-width: 16ch; }
+.match-steps { list-style: none; padding: 0; margin: 40px 0 0; display: grid; gap: 24px; }
+.match-steps li { display: grid; grid-template-columns: 44px 1fr; gap: 18px; align-items: start; }
+.match-steps i { width: 44px; height: 44px; border-radius: 999px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-size: 20px; }
+.match-steps h3 { font-size: 1.1rem; }
+.match-steps p { color: var(--ink-2); margin-top: 2px; }
+.match-why { margin-top: 36px; padding-left: 18px; border-left: 2px solid var(--accent); color: var(--ink-2); max-width: 56ch; }
+.match-why strong { color: var(--ink); }
+.phone {
+  width: 100%; max-width: 400px; justify-self: center; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 32px; padding: 20px; box-shadow: var(--shadow); display: grid; gap: 14px;
+}
+.phone-top { display: flex; justify-content: space-between; align-items: center; font-weight: 600; letter-spacing: -.01em; padding: 4px 6px 12px; border-bottom: 1px solid var(--line); }
+.replay { width: 36px; height: 36px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink-2); cursor: pointer; display: grid; place-items: center; font-size: 16px; }
+.replay:hover { color: var(--accent); border-color: var(--accent-line); }
+.chat { display: grid; gap: 10px; min-height: 430px; align-content: start; }
+.msg { max-width: 88%; padding: 12px 15px; border-radius: 18px; font-size: 14.5px; line-height: 1.5; opacity: 0; transform: translateY(8px); transition: opacity .5s var(--ease), transform .5s var(--ease); }
+.msg.show { opacity: 1; transform: none; }
+.msg.me { justify-self: end; background: var(--ink); color: var(--bg); border-bottom-right-radius: 6px; }
+.msg.ai { justify-self: start; background: var(--bg); border: 1px solid var(--line); border-bottom-left-radius: 6px; }
+.msg.ai strong { color: var(--accent); font-weight: 600; }
+.typing { display: inline-flex; gap: 4px; padding: 14px 16px; }
+.typing span { width: 6px; height: 6px; border-radius: 999px; background: var(--ink-3); animation: dot 1s var(--ease) infinite; }
+.typing span:nth-child(2) { animation-delay: .15s; } .typing span:nth-child(3) { animation-delay: .3s; }
+@keyframes dot { 50% { transform: translateY(-4px); opacity: .5; } }
+.hosp { max-width: 100%; width: 100%; border: 1px solid var(--line); background: var(--bg); border-radius: 16px; padding: 14px 16px; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; }
+.hosp b { font-weight: 600; font-size: 14.5px; }
+.hosp small { color: var(--ink-3); font-size: 13px; grid-column: 1; }
+.hosp .book { grid-row: span 2; grid-column: 2; grid-row-start: 1; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font: 500 13px "Geist", sans-serif; padding: 8px 14px; border: 0; }
+.phone-foot { font-size: 12.5px; color: var(--ink-3); padding: 0 6px; }
+
+/* ---------- Why now ---------- */
+.why-grid { display: grid; gap: 16px; margin-top: 56px; }
+@media (min-width: 960px) { .why-grid { grid-template-columns: 1.25fr 1fr; grid-template-rows: auto auto; } .why-main { grid-row: span 2; } }
+.why { border-radius: var(--r); border: 1px solid var(--line); background: var(--surface); padding: 32px; display: grid; gap: 14px; align-content: start; }
+.why .when { font-size: 13px; color: var(--ink-3); }
+.why p { color: var(--ink-2); }
+.why-main { background: var(--ink); color: var(--bg); border-color: transparent; }
+.why-main p, .why-main .when { color: color-mix(in srgb, var(--bg) 72%, transparent); }
+.why-main .stat { font-size: clamp(3.4rem, 7vw, 5.6rem); font-weight: 600; letter-spacing: -.05em; line-height: .95; margin: 24px 0 4px; color: var(--bg); font-variant-numeric: tabular-nums; }
+.why-main h3 { font-size: 1.7rem; }
+
+/* ---------- Traction ---------- */
+.traction { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--bg-2); }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 40px 24px; margin-top: 56px; }
+@media (min-width: 900px) { .stats { grid-template-columns: repeat(4, 1fr); } }
+.stat-n { font-size: clamp(2.8rem, 5.4vw, 4.4rem); font-weight: 600; letter-spacing: -.05em; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat-n small { font-size: .42em; color: var(--ink-3); letter-spacing: -.01em; margin-left: 8px; font-weight: 500; }
+.stat-l { color: var(--ink-2); margin-top: 12px; max-width: 24ch; }
+.eng { margin-top: 64px; display: grid; gap: 20px; }
+@media (min-width: 900px) { .eng { grid-template-columns: repeat(2, 1fr); gap: 20px 64px; } }
+.eng p { color: var(--ink-2); padding-left: 18px; border-left: 2px solid var(--accent-line); }
+.eng strong { color: var(--ink); font-weight: 600; }
+
+/* ---------- Roadmap ---------- */
+.road-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.road-nav { display: flex; gap: 8px; }
+.road-nav button { width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; font-size: 18px; display: grid; place-items: center; }
+.road-nav button:hover { background: var(--accent-soft); border-color: var(--accent-line); }
+.track {
+  margin-top: 48px; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(270px, 1fr);
+  gap: 0; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding-bottom: 8px;
+}
+.track::-webkit-scrollbar { display: none; }
+@media (min-width: 1024px) { .track { grid-auto-columns: 300px; } }
+.stop { scroll-snap-align: start; padding: 0 28px 0 0; position: relative; }
+.rail { height: 2px; background: var(--line); position: relative; margin-bottom: 28px; }
+.rail::before { content: ""; position: absolute; inset: 0; background: var(--accent); transform-origin: left; transform: scaleX(0); transition: transform .7s var(--ease); transition-delay: calc(var(--i) * 140ms); }
+.stop.done .rail::before { transform: scaleX(1); }
+.stop.now .rail::before { transform: scaleX(.5); }
+.track.go .stop.done .rail::before, .track.go .stop.now .rail::before { }
+.track:not(.go) .rail::before { transform: scaleX(0) !important; }
+.node { position: absolute; left: 0; top: -6px; width: 14px; height: 14px; border-radius: 999px; background: var(--bg); border: 2px solid var(--line); }
+.stop.done .node, .stop.now .node { border-color: var(--accent); background: var(--accent); }
+.stop.now .node::after { content: ""; position: absolute; inset: -7px; border-radius: 999px; border: 1px solid var(--accent); animation: ping 2.2s var(--ease) infinite; }
+@keyframes ping { from { transform: scale(.6); opacity: 1; } to { transform: scale(1.5); opacity: 0; } }
+.stop .when { font-size: 13px; color: var(--ink-3); }
+.stop h3 { margin: 8px 0 10px; }
+.stop p { color: var(--ink-2); font-size: 15px; }
+.status { display: inline-block; margin-top: 14px; font-size: 12.5px; border-radius: 999px; padding: 4px 10px; border: 1px solid var(--line); color: var(--ink-3); }
+.stop.done .status, .stop.now .status { border-color: var(--accent-line); color: var(--accent); }
+.stop.goal h3 { color: var(--accent); }
+
+/* ---------- Team / close ---------- */
+.close-grid { display: grid; gap: 56px; }
+@media (min-width: 960px) { .close-grid { grid-template-columns: 1.1fr 1fr; align-items: center; } }
+.close h2 { max-width: 14ch; font-size: clamp(2.4rem, 5vw, 4.2rem); }
+.close .btn { margin-top: 36px; }
+.contact { display: grid; border-top: 1px solid var(--line); }
+.contact a { display: flex; align-items: center; gap: 20px; padding: 24px 4px; border-bottom: 1px solid var(--line); text-decoration: none; font-size: clamp(1.15rem, 2vw, 1.45rem); font-weight: 500; letter-spacing: -.015em; transition: color .25s var(--ease), padding .35s var(--ease); }
+.contact a:hover { color: var(--accent); padding-left: 12px; }
+.contact i { font-size: 24px; color: var(--accent); width: 48px; height: 48px; border-radius: 999px; display: grid; place-items: center; background: var(--accent-soft); flex: none; }
+.contact span { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.contact small { font-size: 13px; color: var(--ink-3); font-weight: 400; letter-spacing: 0; }
+footer { border-top: 1px solid var(--line); padding: 32px 0 40px; color: var(--ink-3); font-size: 14px; }
+footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+/* ---------- Scroll reveal ---------- */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .9s var(--ease), transform .9s var(--ease); transition-delay: calc(var(--i, 0) * 80ms); }
+.reveal.in { opacity: 1; transform: none; }
+
+/* ---------- Reduced motion: everything lands in its final state ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .rise, .reveal { opacity: 1; transform: none; }
+  .tile { transform: none; }
+  .hero-visual img { transform: none; }
+  .track:not(.go) .rail::before { transform: none !important; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav" aria-label="Primary">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Aetheris Health AI, home"><span class="brand-mark" aria-hidden="true"></span>Aetheris</a>
+    <div class="nav-links">
+      <a href="#platform">Platform</a>
+      <a href="#copilot">Copilot</a>
+      <a href="#why-now">Why now</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="nav-end">
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch color theme"><i class="ph ph-moon" aria-hidden="true"></i></button>
+      <a class="btn btn-primary" href="mailto:founders@aetheris.health?subject=Aetheris%20Health%20AI">Talk to the founders</a>
+    </div>
+  </div>
+</nav>
+<div id="navSentinel" style="position:absolute;top:8px;height:1px;width:1px" aria-hidden="true"></div>
+
+<main id="top">
+
+  <!-- HERO: asymmetric split -->
+  <header class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow rise" style="--i:0">Launching January 2027</span>
+        <h1 class="rise" style="--i:1">One intelligent system for the <em>whole hospital.</em></h1>
+        <p class="lede rise" style="--i:2">Patients, appointments and billing in one platform, with AI built into every workflow. Made for India's 100 to 300 bed hospitals.</p>
+        <div class="hero-ctas rise" style="--i:3">
+          <a class="btn btn-primary" href="mailto:founders@aetheris.health?subject=Aetheris%20Health%20AI">Talk to the founders <i class="ph ph-arrow-right" aria-hidden="true"></i></a>
+          <a class="btn btn-ghost" href="#copilot">Try the copilot</a>
+        </div>
+      </div>
+      <div class="hero-visual rise" style="--i:3" id="heroVisual">
+        <div class="frame">
+          <img src="assets/command-center.jpg"
+               alt="Hospital operations team reviewing live patient flow on a wall of screens" width="1240" height="610" fetchpriority="high" onerror="this.style.visibility='hidden'">
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- PROBLEM: statement + merge animation -->
+  <section class="problem" aria-labelledby="problem-h">
+    <div class="wrap">
+      <h2 id="problem-h" class="reveal">Five systems. One patient. No shared memory.</h2>
+      <p class="lede reveal" style="--i:1">Mid-size hospitals run records, appointments, billing, lab and pharmacy on separate tools. Staff re-type the same patient again and again, and the errors add up.</p>
+      <div class="merge" id="merge">
+        <div class="merge-row">
+          <div class="tile"><i class="ph ph-identification-card" aria-hidden="true"></i>Records</div>
+          <div class="tile"><i class="ph ph-calendar-dots" aria-hidden="true"></i>Appointments</div>
+          <div class="tile"><i class="ph ph-receipt" aria-hidden="true"></i>Billing</div>
+          <div class="tile"><i class="ph ph-flask" aria-hidden="true"></i>Lab</div>
+          <div class="tile"><i class="ph ph-pill" aria-hidden="true"></i>Pharmacy</div>
+        </div>
+        <div class="merge-labels"><p class="merge-before">Five logins. Five copies of every patient.</p><p class="merge-label"><strong>Aetheris joins them.</strong> One record, one login, one audit trail.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLATFORM: bento, 5 items = 5 cells -->
+  <section id="platform" aria-labelledby="platform-h">
+    <div class="wrap">
+      <h2 id="platform-h" class="reveal">Every department works from the same page.</h2>
+      <div class="bento">
+        <article class="cell b-record reveal">
+          <div class="img">
+            <img src="assets/leadership.jpg"
+                 alt="Hospital administrators reviewing patient workflow together" loading="lazy" width="1360" height="495" onerror="this.style.visibility='hidden'">
+          </div>
+          <div class="txt">
+            <h3>One patient record, everywhere it's needed.</h3>
+            <p>Registered once at reception, the patient appears in the doctor's schedule, the billing queue and the AI summary. Nobody types it twice.</p>
+          </div>
+        </article>
+        <article class="cell b-appt reveal" style="--i:1">
+          <i class="ph ph-calendar-check ic" aria-hidden="true"></i>
+          <h3>Double-booking can't happen.</h3>
+          <p>The database itself refuses overlapping slots. AI suggests the next best time.</p>
+        </article>
+        <article class="cell b-bill reveal" style="--i:2">
+          <i class="ph ph-currency-inr ic" aria-hidden="true"></i>
+          <h3>Every rupee reconciles.</h3>
+          <p>Invoices, payments and refunds in exact decimals, never rounded floats.</p>
+        </article>
+        <article class="cell b-reports reveal">
+          <i class="ph ph-chart-line-up ic" aria-hidden="true"></i>
+          <h3>Leadership sees today, not last month.</h3>
+          <p>Revenue, patient flow and department load on one dashboard, updated as work happens.</p>
+        </article>
+        <article class="cell b-audit reveal" style="--i:1">
+          <i class="ph ph-fingerprint ic" aria-hidden="true"></i>
+          <h3>Every action is on the record.</h3>
+          <p>An immutable audit log and strict data isolation for each hospital, built in from the first line of code.</p>
+        </article>
+      </div>
+      <p class="next-up reveal"><strong>Coming in 2027:</strong> Lab, Pharmacy, Inventory and Insurance claims, on the same record.</p>
+    </div>
+  </section>
+
+  <!-- COPILOT: live component -->
+  <section id="copilot" aria-labelledby="copilot-h" style="background:var(--bg-2)">
+    <div class="wrap">
+      <span class="eyebrow reveal">Product preview</span>
+      <h2 id="copilot-h" class="reveal">AI that knows who is asking.</h2>
+      <p class="lede reveal" style="--i:1">Pick a role, then ask. The copilot only answers with what that person is already allowed to see. It ships with our November release.</p>
+
+      <div class="demo reveal" style="--i:2">
+        <div class="demo-side">
+          <div>
+            <span class="demo-label" id="roleLabel">Signed in as</span>
+            <div class="roles" role="group" aria-labelledby="roleLabel">
+              <button class="role" type="button" data-role="doctor" aria-pressed="true"><i class="ph ph-stethoscope" aria-hidden="true"></i>Doctor</button>
+              <button class="role" type="button" data-role="reception" aria-pressed="false"><i class="ph ph-desk" aria-hidden="true"></i>Reception</button>
+              <button class="role" type="button" data-role="billing" aria-pressed="false"><i class="ph ph-wallet" aria-hidden="true"></i>Billing</button>
+            </div>
+            <p class="who" id="who">Dr. Kavya Reddy, Cardiology</p>
+          </div>
+          <div>
+            <span class="demo-label" id="askLabel">Ask the copilot</span>
+            <div class="prompts" role="group" aria-labelledby="askLabel">
+              <button class="prompt" type="button" data-q="summary"><i class="ph ph-notepad" aria-hidden="true"></i>Summarize Ramesh Varma's record</button>
+              <button class="prompt" type="button" data-q="slots"><i class="ph ph-clock" aria-hidden="true"></i>Find a cardiology slot tomorrow</button>
+              <button class="prompt" type="button" data-q="bills"><i class="ph ph-receipt" aria-hidden="true"></i>Show unpaid bills over ₹50,000</button>
+            </div>
+          </div>
+        </div>
+        <div class="demo-main" aria-live="polite">
+          <div class="demo-top"><span>Aetheris Copilot</span><span class="sample">Preview with sample data</span></div>
+          <div id="demoBody" class="empty">
+            <i class="ph ph-sparkle" style="font-size:28px;color:var(--accent)" aria-hidden="true"></i>
+            <p>Choose a question on the left. Then switch roles and ask it again to see the permission check change the answer.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADOPTION: editorial rows, big figure left -->
+  <section id="adoption" aria-labelledby="adopt-h">
+    <div class="wrap">
+      <h2 id="adopt-h" class="reveal">Live in days. Useful on day one.</h2>
+      <p class="lede reveal" style="--i:1">Mid-size hospitals don't have IT departments. So Aetheris runs on modest hardware, and a new hospital can be live within days of signing.</p>
+      <div class="adopt">
+        <div class="adopt-row reveal">
+          <div class="adopt-n">&lt; 3 <span>days</span></div>
+          <div><h3>From signed contract to a live hospital.</h3><p>Staff accounts, departments and settings are set up by us. No servers to buy, no months-long rollout.</p></div>
+        </div>
+        <div class="adopt-row reveal">
+          <div class="adopt-n">30 <span>minutes</span></div>
+          <div><h3>Until a doctor sees their first AI patient summary.</h3><p>Value shows up in the first shift, not after a year of training.</p></div>
+        </div>
+        <div class="adopt-row reveal">
+          <div class="adopt-n">40%</div>
+          <div><h3>Of clinical notes drafted with AI by month three.</h3><p>Doctors spend less time typing and more time with patients.</p></div>
+        </div>
+      </div>
+      <p class="adopt-foot reveal">Launch targets from our product plan, measured with our first pilot hospital.</p>
+    </div>
+  </section>
+
+  <!-- PATIENT MATCH: split, text + phone chat preview -->
+  <section id="match" aria-labelledby="match-h" style="background:var(--bg-2)">
+    <div class="wrap match-grid">
+      <div>
+        <h2 id="match-h" class="reveal">Patients find the right hospital. Hospitals find patients.</h2>
+        <p class="lede reveal" style="--i:1">A patient describes their problem and where they are. Aetheris AI suggests the right specialty and nearby partner hospitals with open slots.</p>
+        <ol class="match-steps">
+          <li class="reveal"><i class="ph ph-chat-text" aria-hidden="true"></i><div><h3>Describe the problem</h3><p>In plain words, in the patient's own language.</p></div></li>
+          <li class="reveal" style="--i:1"><i class="ph ph-map-pin-area" aria-hidden="true"></i><div><h3>Match specialty and distance</h3><p>AI weighs the right department, travel time and real availability.</p></div></li>
+          <li class="reveal" style="--i:2"><i class="ph ph-calendar-plus" aria-hidden="true"></i><div><h3>Book straight into the hospital</h3><p>The appointment lands in that hospital's Aetheris calendar.</p></div></li>
+        </ol>
+        <p class="match-why reveal"><strong>Why hospitals join:</strong> every hospital on Aetheris becomes discoverable by patients who need exactly what it offers. The software pays for itself in new patients.</p>
+      </div>
+      <div class="phone reveal" style="--i:1" id="phone">
+        <div class="phone-top"><span>Aetheris Care</span><button type="button" id="replay" class="replay" aria-label="Replay conversation"><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i></button></div>
+        <div class="chat" id="chat" aria-live="polite"></div>
+        <p class="phone-foot">Illustrative preview. Suggestions are not a diagnosis. In an emergency, call 108.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY NOW: asymmetric 1 + 2 -->
+  <section id="why-now" aria-labelledby="why-h" style="border-top:1px solid var(--line)">
+    <div class="wrap">
+      <h2 id="why-h" class="reveal">Regulation just made disconnected software a liability.</h2>
+      <div class="why-grid">
+        <article class="why why-main reveal">
+          <span class="when">NABH Digital Health Standards, effective January 2026</span>
+          <div class="stat" data-count="4200" data-suffix="+">4,200+</div>
+          <p>NABH-accredited hospitals now need digital records, audit trails and role-based access to keep accreditation.</p>
+          <h3 style="margin-top:auto;padding-top:32px">Five disconnected systems can't produce that evidence. One system can.</h3>
+        </article>
+        <article class="why reveal" style="--i:1">
+          <span class="when">DPDP Act 2023, enforced from November 2025</span>
+          <h3>Health data is now the most protected category.</h3>
+          <p>Hospitals must prove consent, log every access and report breaches within 72 hours. Aetheris was built for this from the first sprint.</p>
+        </article>
+        <article class="why reveal" style="--i:2">
+          <span class="when">The AI window</span>
+          <h3>Legacy vendors can't bolt AI onto 15-year-old code.</h3>
+          <p>Platforms designed with AI as a core layer today will set the standard for the next decade of hospital software.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRACTION: stat band -->
+  <section class="traction" aria-labelledby="traction-h">
+    <div class="wrap">
+      <h2 id="traction-h" class="reveal">Built like infrastructure, on a fixed clock.</h2>
+      <p class="lede reveal" style="--i:1">Version 2.0 is on an 18-week build with a release gate at every stage. Alpha shipped on September 6.</p>
+      <div class="stats">
+        <div class="reveal"><div class="stat-n"><span data-count="6">6</span><small>of 14</small></div><p class="stat-l">core modules shipped, from authentication to patient records</p></div>
+        <div class="reveal" style="--i:1"><div class="stat-n"><span data-count="700" data-suffix="+">700+</span></div><p class="stat-l">automated tests across services, APIs and AI evaluations</p></div>
+        <div class="reveal" style="--i:2"><div class="stat-n"><span data-count="100" data-suffix="%">100%</span></div><p class="stat-l">test coverage on login and money-handling code</p></div>
+        <div class="reveal" style="--i:3"><div class="stat-n"><span data-count="4">4</span><small>of 4</small></div><p class="stat-l">end-to-end hospital workflows required to pass before launch</p></div>
+      </div>
+      <div class="eng">
+        <p class="reveal"><strong>Multi-hospital from day one.</strong> Every record carries its hospital, and every query is filtered by it. Hospital number two needs zero rework.</p>
+        <p class="reveal" style="--i:1"><strong>Security that auditors recognise.</strong> Argon2id passwords, 15-minute access tokens with rotation, and an audit entry for every change.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROADMAP: horizontal scroll-snap track -->
+  <section id="roadmap" aria-labelledby="road-h">
+    <div class="wrap">
+      <div class="road-head">
+        <div>
+          <span class="eyebrow reveal">Built for India</span>
+          <h2 id="road-h" class="reveal">From one pilot to 200 hospitals across India.</h2>
+        </div>
+        <div class="road-nav reveal">
+          <button type="button" id="roadPrev" aria-label="Previous milestones"><i class="ph ph-arrow-left" aria-hidden="true"></i></button>
+          <button type="button" id="roadNext" aria-label="Next milestones"><i class="ph ph-arrow-right" aria-hidden="true"></i></button>
+        </div>
+      </div>
+      <div class="track" id="track" tabindex="0" aria-label="Roadmap milestones">
+        <div class="stop done" style="--i:0"><div class="rail"><span class="node"></span></div><span class="when mono">Sep 2026</span><h3>Alpha</h3><p>Authentication, roles, users, hospital settings and dashboard.</p><span class="status">Shipped</span></div>
+        <div class="stop now" style="--i:1"><div class="rail"><span class="node"></span></div><span class="when mono">Oct 2026</span><h3>Beta</h3><p>Patients, doctors and appointments, tested across three hospitals in staging.</p><span class="status">In progress</span></div>
+        <div class="stop" style="--i:2"><div class="rail"><span class="node"></span></div><span class="when mono">Nov 30, 2026</span><h3>Release candidate</h3><p>Billing, AI assistant, reports and notifications. Code freeze.</p><span class="status">Next</span></div>
+        <div class="stop" style="--i:3"><div class="rail"><span class="node"></span></div><span class="when mono">Jan 2027</span><h3>Production launch</h3><p>First pilot hospital live in Hyderabad, with a 99.9% uptime target.</p><span class="status">Launch</span></div>
+        <div class="stop" style="--i:4"><div class="rail"><span class="node"></span></div><span class="when mono">H1 2027</span><h3>Clinical depth</h3><p>Lab, pharmacy and SMS. AI provider failover. 3 to 5 hospitals live.</p></div>
+        <div class="stop" style="--i:5"><div class="rail"><span class="node"></span></div><span class="when mono">Mid 2027</span><h3>Business and scale</h3><p>Inventory, insurance claims and multi-branch hospitals. 10+ hospitals live.</p></div>
+        <div class="stop" style="--i:6"><div class="rail"><span class="node"></span></div><span class="when mono">H2 2027</span><h3>Enterprise ready</h3><p>SSO, custom roles, FHIR interoperability, ISO 27001 preparation.</p></div>
+        <div class="stop goal" style="--i:7"><div class="rail"><span class="node"></span></div><span class="when mono">Early 2028</span><h3>Commercial launch</h3><p>50+ hospitals live, 30+ paying, onboarding in under 3 days.</p></div>
+        <div class="stop goal" style="--i:8"><div class="rail"><span class="node"></span></div><span class="when mono">2028 onward</span><h3>Platform expansion</h3><p>200+ hospitals across India, a public API and a partner marketplace.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSE: CTA + contact -->
+  <section id="contact" class="close" aria-labelledby="close-h" style="border-top:1px solid var(--line)">
+    <div class="wrap close-grid">
+      <div>
+        <h2 id="close-h" class="reveal">We go live in January. See it first.</h2>
+        <p class="lede reveal" style="--i:1">Book a 30-minute walkthrough of the working product with the founding team.</p>
+        <a class="btn btn-primary reveal" style="--i:2" href="mailto:founders@aetheris.health?subject=Aetheris%20Health%20AI">Talk to the founders <i class="ph ph-arrow-right" aria-hidden="true"></i></a>
+      </div>
+      <div class="contact reveal" style="--i:1">
+        <a href="tel:+919000000000"><i class="ph ph-phone" aria-hidden="true"></i><span><small>Phone</small>+91 90000 00000</span></a>
+        <a href="mailto:founders@aetheris.health"><i class="ph ph-envelope-simple" aria-hidden="true"></i><span><small>Email</small>founders@aetheris.health</span></a>
+        <a href="https://linkedin.com/in/sanjeev" target="_blank" rel="noopener"><i class="ph ph-linkedin-logo" aria-hidden="true"></i><span><small>LinkedIn</small>linkedin.com/in/sanjeev</span></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Aetheris Health AI</span>
+    <span>Hyderabad, India</span>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Theme: follows the system until the visitor picks one. */
+  const root = document.documentElement;
+  const toggle = document.getElementById('themeToggle');
+  const isDark = () => root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  const paintIcon = () => { toggle.innerHTML = `<i class="ph ${isDark() ? 'ph-sun' : 'ph-moon'}" aria-hidden="true"></i>`; };
+  try { const saved = localStorage.getItem('aetheris-theme'); if (saved) root.dataset.theme = saved; } catch (e) {}
+  paintIcon();
+  toggle.addEventListener('click', () => {
+    root.dataset.theme = isDark() ? 'light' : 'dark';
+    try { localStorage.setItem('aetheris-theme', root.dataset.theme); } catch (e) {}
+    paintIcon();
+  });
+
+  /* Nav border appears once the page leaves the top. */
+  const nav = document.getElementById('nav');
+  new IntersectionObserver(([e]) => nav.classList.toggle('scrolled', !e.isIntersecting)).observe(document.getElementById('navSentinel'));
+
+  /* Hero load-in. */
+  requestAnimationFrame(() => document.querySelectorAll('.rise').forEach(el => el.classList.add('in')));
+
+  /* Count-up for numbers: shows scale as the reader arrives. */
+  const fmt = n => n.toLocaleString('en-IN');
+  const countUp = el => {
+    const end = +el.dataset.count, suffix = el.dataset.suffix || '';
+    if (reduce) { el.textContent = fmt(end) + suffix; return; }
+    const t0 = performance.now(), dur = 1400;
+    const step = t => {
+      const p = Math.min((t - t0) / dur, 1), e = 1 - Math.pow(1 - p, 4);
+      el.textContent = fmt(Math.round(end * e)) + suffix;
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
+
+  /* Scroll reveal. */
+  const io = new IntersectionObserver(entries => entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    e.target.classList.add('in');
+    e.target.querySelectorAll('[data-count]').forEach(countUp);
+    if (e.target.dataset.count) countUp(e.target);
+    io.unobserve(e.target);
+  }), { threshold: .18, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  /* Problem: scattered tools join into one bar when the row is in view. */
+  const merge = document.getElementById('merge');
+  new IntersectionObserver(([e], obs) => {
+    if (!e.isIntersecting) return;
+    setTimeout(() => merge.classList.add('joined'), reduce ? 0 : 450);
+    obs.disconnect();
+  }, { threshold: .6 }).observe(merge);
+
+  /* Roadmap: progress fills when the track arrives; arrows page through it. */
+  const track = document.getElementById('track');
+  new IntersectionObserver(([e], obs) => { if (e.isIntersecting) { track.classList.add('go'); obs.disconnect(); } }, { threshold: .4 }).observe(track);
+  const page = dir => track.scrollBy({ left: dir * Math.min(track.clientWidth * .8, 620), behavior: reduce ? 'auto' : 'smooth' });
+  document.getElementById('roadPrev').addEventListener('click', () => page(-1));
+  document.getElementById('roadNext').addEventListener('click', () => page(1));
+
+  /* ---------- Patient match chat (illustrative) ---------- */
+  const chat = document.getElementById('chat');
+  const script = [
+    ['me', 'I get chest pain when I climb stairs. I live in Kukatpally.'],
+    ['ai', 'That sounds like it needs a <strong>cardiology</strong> consultation. Here are the nearest partner hospitals with a slot today:'],
+    ['hosp', 'Sri Venkata Multispeciality', '2.1 km, cardiology at 11:40 today'],
+    ['hosp', 'Lotus Heart and Vascular Centre', '3.8 km, cardiology at 14:10 today'],
+    ['ai', 'If the pain is severe or comes on at rest, please call 108 now.']
+  ];
+  let chatRun = 0;
+  async function playChat() {
+    const id = ++chatRun; chat.innerHTML = '';
+    for (const [kind, a, b] of script) {
+      if (id !== chatRun) return;
+      let el;
+      if (kind === 'ai' && !reduce) {
+        const t = document.createElement('div'); t.className = 'msg ai show typing'; t.innerHTML = '<span></span><span></span><span></span>';
+        chat.appendChild(t); await wait(900); t.remove();
+        if (id !== chatRun) return;
+      }
+      el = document.createElement('div');
+      if (kind === 'hosp') { el.className = 'msg hosp'; el.innerHTML = `<b>${a}</b><small>${b}</small><button class="book" type="button" tabindex="-1">Book</button>`; }
+      else { el.className = 'msg ' + kind; el.innerHTML = a; }
+      chat.appendChild(el);
+      requestAnimationFrame(() => el.classList.add('show'));
+      await wait(kind === 'me' ? 700 : 450);
+    }
+  }
+  new IntersectionObserver(([e], obs) => { if (e.isIntersecting) { playChat(); obs.disconnect(); } }, { threshold: .4 }).observe(document.getElementById('phone'));
+  document.getElementById('replay').addEventListener('click', playChat);
+
+  /* ---------- Copilot demo (sample data) ---------- */
+  const roles = {
+    doctor:    { who: 'Dr. Kavya Reddy, Cardiology', label: 'Doctor', perms: ['patients:read_clinical', 'appointments:read'] },
+    reception: { who: 'Imran Shaikh, Front desk', label: 'Receptionist', perms: ['appointments:read', 'appointments:write', 'billing:read'] },
+    billing:   { who: 'Lakshmi Iyer, Billing', label: 'Billing staff', perms: ['billing:read', 'billing:write'] }
+  };
+  const questions = {
+    summary: {
+      ask: "Summarize Ramesh Varma's record",
+      tool: 'patients.get_history', perm: 'patients:read_clinical',
+      answer: {
+        intro: 'Ramesh Varma, 58, MRN HYD-204417. Here is what the record shows:',
+        rows: [
+          ['2016', 'Type 2 diabetes. HbA1c improving over the last three visits.'],
+          ['2021', 'Hypertension, on amlodipine 5 mg daily.'],
+          ['Alert', 'Allergic to penicillin.'],
+          ['12 Sep', 'Chest discomfort on exertion. ECG normal. Follow-up advised.']
+        ],
+        note: ['ph-first-aid', 'Decision support only. Please verify before clinical use.']
+      }
+    },
+    slots: {
+      ask: 'Find a cardiology slot tomorrow morning',
+      tool: 'appointments.recommend_slots', perm: 'appointments:read',
+      answer: {
+        intro: 'Three open cardiology slots tomorrow, ranked by wait time:',
+        rows: [
+          ['09:20', 'Dr. Kavya Reddy, OPD room 4'],
+          ['10:40', 'Dr. Arjun Menon, OPD room 2'],
+          ['11:00', 'Dr. Kavya Reddy, OPD room 4']
+        ],
+        note: ['ph-hand-tap', 'Nothing is booked until a staff member confirms.']
+      }
+    },
+    bills: {
+      ask: 'Show unpaid bills over ₹50,000',
+      tool: 'billing.list_invoices', perm: 'billing:read',
+      answer: {
+        intro: 'Three unpaid invoices above ₹50,000:',
+        rows: [
+          ['₹1,12,900', 'INV-0418, insurance pre-authorisation pending'],
+          ['₹72,400', 'INV-0431, partial payment received'],
+          ['₹58,150', 'INV-0442, due in 4 days']
+        ],
+        note: ['ph-scales', 'Amounts are stored as exact decimals, so totals always reconcile.']
+      }
+    }
+  };
+
+  let role = 'doctor', current = null, runId = 0;
+  const body = document.getElementById('demoBody');
+  const whoEl = document.getElementById('who');
+  const wait = ms => new Promise(r => setTimeout(r, reduce ? 0 : ms));
+  const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  async function typeInto(el, text, id, speed = 16) {
+    if (reduce) { el.textContent = text; return; }
+    const caret = document.createElement('span'); caret.className = 'caret';
+    el.textContent = ''; el.after(caret);
+    for (let i = 0; i < text.length; i++) {
+      if (id !== runId) { caret.remove(); return; }
+      el.textContent += text[i];
+      await new Promise(r => setTimeout(r, speed));
+    }
+    caret.remove();
+  }
+
+  async function run(qKey) {
+    const id = ++runId;
+    const q = questions[qKey], r = roles[role];
+    const allowed = r.perms.includes(q.perm);
+    body.className = '';
+    body.innerHTML = `
+      <p class="ask" id="askText"></p>
+      <div class="trace mono" id="trace">
+        <div><span class="k">user</span><span>${esc(r.who)}</span></div>
+        <div><span class="k">tool</span><span>${q.tool}</span></div>
+        <div><span class="k">permission</span><span>${q.perm} <span class="${allowed ? 'ok' : 'no'}">${allowed ? 'granted' : 'denied'}</span></span></div>
+        <div><span class="k">scope</span><span>this hospital only</span></div>
+        <div><span class="k">audit</span><span>request logged</span></div>
+      </div>
+      <div class="answer" id="answer"><div class="skeleton"><span style="width:62%"></span><span style="width:88%"></span><span style="width:74%"></span></div></div>`;
+    await typeInto(document.getElementById('askText'), q.ask, id, 14);
+    for (const line of document.querySelectorAll('#trace div')) {
+      if (id !== runId) return;
+      await wait(260); line.classList.add('show');
+    }
+    await wait(450);
+    if (id !== runId) return;
+    const ans = document.getElementById('answer');
+    if (!allowed) {
+      ans.innerHTML = `<div class="denied"><i class="ph ph-shield-warning" aria-hidden="true"></i><div><strong>Not available for your role.</strong><p style="margin-top:4px;color:var(--ink-2)">${esc(r.label)} accounts don't have <span class="mono">${q.perm}</span>. The copilot never saw this data, so it can't answer.</p></div></div>`;
+      return;
+    }
+    ans.innerHTML = `<p id="intro"></p><ul></ul>`;
+    await typeInto(document.getElementById('intro'), q.answer.intro, id, 12);
+    const ul = ans.querySelector('ul');
+    for (const [k, v] of q.answer.rows) {
+      if (id !== runId) return;
+      await wait(160);
+      const li = document.createElement('li');
+      li.innerHTML = `<span class="mono">${esc(k)}</span><span>${esc(v)}</span>`;
+      ul.appendChild(li);
+    }
+    await wait(200);
+    if (id !== runId) return;
+    ans.insertAdjacentHTML('beforeend', `<p class="note"><i class="ph ${q.answer.note[0]}" aria-hidden="true"></i>${esc(q.answer.note[1])}</p>`);
+  }
+
+  document.querySelectorAll('.role').forEach(btn => btn.addEventListener('click', () => {
+    role = btn.dataset.role;
+    document.querySelectorAll('.role').forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
+    whoEl.textContent = roles[role].who;
+    if (current) run(current);
+  }));
+  document.querySelectorAll('.prompt').forEach(btn => btn.addEventListener('click', () => {
+    select(btn.dataset.q);
+    if (matchMedia('(max-width: 959px)').matches) document.querySelector('.demo-main').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  }));
+  function select(q) {
+    current = q;
+    document.querySelectorAll('.prompt').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.q === q)));
+    run(q);
+  }
+  /* First visit: run one question so the demo is never an empty box. */
+  new IntersectionObserver(([e], obs) => { if (e.isIntersecting) { if (!current) select('summary'); obs.disconnect(); } }, { threshold: .45 }).observe(document.querySelector('.demo'));
+})();
+</script>
+</body>
+</html>
